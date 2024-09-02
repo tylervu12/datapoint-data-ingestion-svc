@@ -1,1 +1,0 @@
-this will include scripts related to testing the data ingestion process
