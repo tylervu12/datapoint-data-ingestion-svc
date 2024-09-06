@@ -1,3 +1,7 @@
 boto3
 sagemaker
 setuptools
+unittest
+mock
+moto
+beautifulsoup4
