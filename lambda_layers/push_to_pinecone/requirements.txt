@@ -1,0 +1,2 @@
+pinecone
+urllib3<2.0
