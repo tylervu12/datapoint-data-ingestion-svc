@@ -1,7 +1,10 @@
 boto3
 sagemaker
 setuptools
-unittest
+pytest
 mock
 moto
 beautifulsoup4
+python-dotenv
+openai
+tiktoken
