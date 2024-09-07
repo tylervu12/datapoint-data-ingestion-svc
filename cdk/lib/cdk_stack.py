@@ -142,3 +142,51 @@ class DataIngestionStack(Stack):
                 batch_size=1  # Adjust batch size for embedding processing
             )
         )
+
+        # --- Define the DynamoDB SQS queue ---
+        dynamo_sqs_queue = sqs.Queue(
+            self, "DynamoSQSQueue",
+            queue_name="DynamoSQSQueue",
+            visibility_timeout=Duration.seconds(300)  # Adjust based on processing needs
+        )
+
+        # --- Define the custom Lambda Layer for push_to_pinecone Lambda function ---
+        push_to_pinecone_layer = _lambda.LayerVersion(
+            self, "PushToPineconeLayer",
+            code=_lambda.Code.from_asset("../lambda_layers/push_to_pinecone/layer.zip"),
+            compatible_runtimes=[_lambda.Runtime.PYTHON_3_8],
+            description="Custom layer for push_to_pinecone Lambda"
+        )
+
+        # --- Define the new Lambda function for pushing to Pinecone and sending metadata ---
+        push_to_pinecone_lambda = _lambda.Function(
+            self, "PushToPineconeLambda",
+            runtime=_lambda.Runtime.PYTHON_3_8,
+            handler="push_to_pinecone.lambda_handler",
+            code=_lambda.Code.from_asset("../src/lambda_functions/push_to_pinecone"),
+            environment={
+                'PINECONE_API_KEY': os.environ['PINECONE_API_KEY'],  # Pinecone API Key
+                'PINECONE_INDEX_NAME': os.environ['PINECONE_INDEX_NAME'],  # Pinecone index name
+                'DYNAMO_SQS_QUEUE_URL': dynamo_sqs_queue.queue_url  # Send metadata to Dynamo SQS queue
+            },
+            timeout=Duration.seconds(300),  # Adjust based on processing needs
+            memory_size=1024,  # Adjust based on expected load
+            layers=[
+                push_to_pinecone_layer,  # Add custom layer
+                _lambda.LayerVersion.from_layer_version_arn(
+                    self, "SciPyLayer",  # Add the AWS SciPy layer
+                    "arn:aws:lambda:us-west-2:420165488524:layer:AWSLambda-Python38-SciPy1x:107"
+                )
+            ]
+        )
+
+        # Grant permissions to push to the Dynamo SQS queue
+        dynamo_sqs_queue.grant_send_messages(push_to_pinecone_lambda)
+
+        # Trigger the new Lambda when messages arrive in the PineconeQueue
+        push_to_pinecone_lambda.add_event_source(
+            lambda_event_sources.SqsEventSource(
+                pinecone_queue,
+                batch_size=1  # Adjust batch size for processing needs
+            )
+        )
