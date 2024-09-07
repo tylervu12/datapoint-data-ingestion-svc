@@ -23,8 +23,9 @@ def lambda_handler(event, context):
 
         # Scrape the website with retry logic
         scraped_text = scrape_website_with_retry(company_website)
-        print(scraped_text)
-        if scraped_text:
+        
+        # Check if the scraped text has fewer than 100 characters
+        if scraped_text and len(scraped_text) >= 100:
             print(f"Successfully scraped text for {company_name} - {company_website}")
             
             # Send scraped text to the next Lambda (via SQS)
@@ -36,7 +37,7 @@ def lambda_handler(event, context):
                 'scraped_text': scraped_text,
             })
         else:
-            print(f"Failed to scrape text for {company_name} - {company_website}")
+            print(f"Scraped text for {company_name} is too short (< 100 characters) - Skipping")
     
     return {
         'statusCode': 200,
