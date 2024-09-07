@@ -21,9 +21,9 @@ class TestGetTextsLambda(unittest.TestCase):
         with mock.patch.dict(os.environ, {'EMBEDDING_QUEUE_URL': queue_url}):
             # Mock the requests.get call
             with mock.patch('requests.get') as mock_requests_get:
-                # Simulate a successful website scrape
+                # Simulate a successful website scrape with content more than 100 characters
                 mock_requests_get.return_value.status_code = 200
-                mock_requests_get.return_value.text = "<html><body>Leadbird website content</body></html>"
+                mock_requests_get.return_value.text = "<html><body>" + "Leadbird content" * 10 + "</body></html>"
 
                 # Sample event to simulate SQS trigger
                 event = {
@@ -60,6 +60,50 @@ class TestGetTextsLambda(unittest.TestCase):
                 self.assertEqual(sent_message['employee_size'], '10')
                 self.assertEqual(sent_message['location'], 'San Francisco, USA')
                 self.assertIn('scraped_text', sent_message)
+
+    @mock_aws
+    def test_lambda_handler_does_not_send_short_scraped_text(self):
+        # Mock SQS setup
+        sqs = boto3.client('sqs', region_name='us-west-2')
+        queue_url = sqs.create_queue(QueueName='mock-embedding-queue')['QueueUrl']
+
+        # Debugging statement to print SQS URL
+        print(f"Test SQS Queue URL: {queue_url}")
+
+        # Mock environment variable for EMBEDDING_QUEUE_URL
+        with mock.patch.dict(os.environ, {'EMBEDDING_QUEUE_URL': queue_url}):
+            # Mock the requests.get call
+            with mock.patch('requests.get') as mock_requests_get:
+                # Simulate a successful website scrape with content less than 100 characters
+                mock_requests_get.return_value.status_code = 200
+                mock_requests_get.return_value.text = "<html><body>Short content</body></html>"
+
+                # Sample event to simulate SQS trigger
+                event = {
+                    "Records": [
+                        {
+                            "body": json.dumps({
+                                "company_name": "Leadbird",
+                                "company_website": "https://leadbird.io",
+                                "employee_size": "10",
+                                "location": "San Francisco, USA"
+                            })
+                        }
+                    ]
+                }
+
+                # Call the Lambda handler
+                lambda_handler(event, None)
+
+                # Debugging statement to check messages
+                print("Checking messages in SQS")
+
+                # Check if any message was sent to SQS
+                messages = sqs.receive_message(QueueUrl=queue_url, MaxNumberOfMessages=10)
+                print(f"Received messages: {messages}")
+
+                # Assert that no message was sent since scraped text is less than 100 characters
+                self.assertNotIn('Messages', messages)
 
 if __name__ == '__main__':
     unittest.main()
