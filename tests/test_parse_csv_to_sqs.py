@@ -59,8 +59,8 @@ class TestLambdaFunction(unittest.TestCase):
             # Validate message content
             first_message = json.loads(messages['Messages'][0]['Body'])
             self.assertEqual(first_message['company_name'], 'test1')
-            self.assertEqual(first_message['company_website'], 'test1.com')
-            self.assertEqual(first_message['employee_size'], '45')
+            self.assertEqual(first_message['company_website'], 'https://www.test1.com')
+            self.assertEqual(first_message['employee_size'], '11-50')
             self.assertEqual(first_message['location'], 'USA')
 
 if __name__ == '__main__':
