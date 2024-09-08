@@ -35,7 +35,7 @@ datapoint-data-ingestion-svc/
 - AWS account with access to services like S3, Lambda, SQS, and Pinecone
 - Accounts for required services:
   - [ScrapingBee](https://www.scrapingbee.com/)
-  - [OpenAI API](https://beta.openai.com/signup/)
+  - [OpenAI API](https://openai.com/)
   - [Pinecone](https://www.pinecone.io/)
 
 ## Deployment Instructions
