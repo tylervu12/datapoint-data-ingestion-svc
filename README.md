@@ -19,13 +19,12 @@ The pipeline leverages AWS services such as Lambda, S3, SQS, Step Functions, and
 ```bash
 datapoint-data-ingestion-svc/
 │
-├── Dockerfile               # Docker configuration for Lambda layers
 ├── README.md                # Project documentation
 ├── requirements.txt         # Python dependencies
-├── cdk/                     # AWS CDK stack definition
+├── cdk/                     # AWS CDK stack 
 ├── src/                     # Source code for Lambda functions
 ├── tests/                   # Unit tests for Lambda functions
-├── lambda_layers/            # Pre-built Lambda layers
+├── lambda_layers/           # Custom built Lambda layers
 └── venv/                    # Python virtual environment
 ```
 
