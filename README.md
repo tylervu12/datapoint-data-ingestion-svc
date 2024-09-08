@@ -108,7 +108,7 @@ cdk deploy
 
 ## Step 6: Testing the Lambda Functions
 
-You can invoke Lambda functions manually by uploading a test CSV file to the specified S3 bucket. Use the AWS Console or AWS CLI to trigger the functions with a test event.
+You can invoke Lambda functions manually by uploading a test CSV file to the specified S3 bucket and you will find submitted embeddings in your Pinecone index along with the corresponding metadata.
 
 #### Running Unit Tests
 
