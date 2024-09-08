@@ -23,6 +23,7 @@ datapoint-data-ingestion-svc/
 ├── src/                     # Source code for Lambda functions
 ├── tests/                   # Unit tests for Lambda functions
 ├── lambda_layers/           # Custom built Lambda layers
+├── env.example              # Template for environment variables
 └── venv/                    # Python virtual environment
 ```
 
@@ -32,6 +33,10 @@ datapoint-data-ingestion-svc/
 - AWS CLI installed and configured
 - Node.js for AWS CDK
 - AWS account with access to services like S3, Lambda, SQS, and Pinecone
+- Accounts for required services:
+  - [ScrapingBee](https://www.scrapingbee.com/)
+  - [OpenAI API](https://beta.openai.com/signup/)
+  - [Pinecone](https://www.pinecone.io/)
 
 ## Deployment Instructions
 
@@ -62,7 +67,24 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-## Step 4: Deploy the AWS Infrastructure
+## Step 4: Set Up Environment Variables
+
+1. Copy the provided env.example file and rename it to .env:
+
+```bash
+cp env.example .env
+```
+
+2. Open the .env file and add your API keys and index name for the following services:
+
+```bash
+PINECONE_API_KEY=your-pinecone-api-key
+PINECONE_INDEX_NAME=your-pinecone-index-name
+SCRAPINGBEE_API_KEY=your-scrapingbee-api-key
+OPENAI_API_KEY=your-openai-api-key
+```
+
+## Step 5: Deploy the AWS Infrastructure
 
 This project uses AWS CDK to define and deploy the infrastructure. Run the following commands to deploy:
 
@@ -84,7 +106,7 @@ cdk bootstrap
 cdk deploy
 ```
 
-## Step 5: Testing the Lambda Functions
+## Step 6: Testing the Lambda Functions
 
 You can invoke Lambda functions manually by uploading a test CSV file to the specified S3 bucket. Use the AWS Console or AWS CLI to trigger the functions with a test event.
 
