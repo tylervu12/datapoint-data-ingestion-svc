@@ -28,7 +28,7 @@ datapoint-data-ingestion-svc/
 
 ## Prerequisites
 
-- Python 3.8+
+- Python 3.8
 - AWS CLI installed and configured
 - Node.js for AWS CDK
 - AWS account with access to services like S3, Lambda, SQS, and Pinecone
