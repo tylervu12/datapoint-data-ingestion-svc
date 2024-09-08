@@ -2,7 +2,7 @@
 
 ## Overview
 
-`datapoint-data-ingestion-svc` is a scalable data ingestion pipeline designed to handle large datasets of company information. The pipeline processes CSV files, scrapes company websites, converts the text into embeddings using OpenAI's embeddings API, and stores both the embeddings and associated metadata in Pinecone for fast similarity search. Metadata is also stored in DynamoDB for efficient querying and management.
+`datapoint-data-ingestion-svc` is a scalable data ingestion pipeline designed to handle large datasets of company information. The pipeline processes CSV files, scrapes company websites, converts the text into embeddings using OpenAI's embeddings API, and stores both the embeddings and associated metadata (employee size, location, company name, etc.) in Pinecone for fast similarity search. 
 
 The pipeline leverages AWS services such as Lambda, S3, SQS, Step Functions, and Pinecone to ensure scalability, cost-efficiency, and reliability.
 
@@ -12,8 +12,6 @@ The pipeline leverages AWS services such as Lambda, S3, SQS, Step Functions, and
 - **Embeddings Generation**: Convert scraped text into embeddings using OpenAI API and upsert them into Pinecone with metadata.
 - **Retry Logic**: Built-in retry mechanisms for handling timeouts and errors in scraping, embedding generation, and upsertion.
   
-## Project Structure
-
 ## Project Structure
 
 ```bash
