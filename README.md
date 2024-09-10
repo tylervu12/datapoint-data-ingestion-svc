@@ -82,6 +82,7 @@ PINECONE_API_KEY=your-pinecone-api-key
 PINECONE_INDEX_NAME=your-pinecone-index-name
 SCRAPINGBEE_API_KEY=your-scrapingbee-api-key
 OPENAI_API_KEY=your-openai-api-key
+DYNAMODB_TABLE_NAME=your-dynamo-db-table-name
 ```
 
 ## Step 5: Deploy the AWS Infrastructure
