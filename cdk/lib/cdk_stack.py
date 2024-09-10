@@ -1,11 +1,13 @@
 from aws_cdk import (
     Stack,
     Duration,
+    RemovalPolicy,
     aws_lambda as _lambda,
     aws_s3 as s3,
     aws_sqs as sqs,
     aws_s3_notifications as s3n,
-    aws_lambda_event_sources as lambda_event_sources  # SQS event source for Lambda
+    aws_lambda_event_sources as lambda_event_sources,  
+    aws_dynamodb as dynamodb
 )
 from aws_cdk.aws_lambda import Architecture
 from constructs import Construct
@@ -188,5 +190,43 @@ class DataIngestionStack(Stack):
             lambda_event_sources.SqsEventSource(
                 pinecone_queue,
                 batch_size=1  # Adjust batch size for processing needs
+            )
+        )
+
+        # Define DynamoDB table
+        dynamo_table = dynamodb.Table(
+            self, "CompanyMetadataTable",
+            table_name="CompanyMetadata",  # Name of the table
+            partition_key=dynamodb.Attribute(
+                name="id",
+                type=dynamodb.AttributeType.STRING
+            ),
+            removal_policy=RemovalPolicy.DESTROY  # Change this if you don't want the table to be deleted when the stack is destroyed
+        )
+
+        # Define the Lambda function to send metadata to DynamoDB
+        send_to_dynamo_lambda = _lambda.Function(
+            self, "SendToDynamoLambda",
+            runtime=_lambda.Runtime.PYTHON_3_8,
+            handler="push_to_dynamo.lambda_handler",
+            code=_lambda.Code.from_asset("../src/lambda_functions/push_to_dynamo"),
+            environment={
+                'DYNAMODB_TABLE_NAME': dynamo_table.table_name  
+            },
+            timeout=Duration.seconds(300),  # Adjust timeout if needed
+            memory_size=1024  # Adjust memory as per requirements
+        )
+
+        # Grant permissions to the Lambda function to put items into DynamoDB
+        dynamo_table.grant_write_data(send_to_dynamo_lambda)
+
+        # Grant the Lambda function permissions to interact with the SQS queue
+        dynamo_sqs_queue.grant_consume_messages(send_to_dynamo_lambda)
+
+        # Trigger the Lambda when messages arrive in the Dynamo SQS queue
+        send_to_dynamo_lambda.add_event_source(
+            lambda_event_sources.SqsEventSource(
+                dynamo_sqs_queue,
+                batch_size=1  # Adjust batch size as needed
             )
         )
